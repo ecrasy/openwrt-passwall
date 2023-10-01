@@ -5,29 +5,29 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=v2ray-geodata
-PKG_RELEASE:=$(AUTORELEASE)
+PKG_RELEASE:=1
 
 PKG_LICENSE_FILES:=LICENSE
 PKG_MAINTAINER:=Tianling Shen <cnsztl@immortalwrt.org>
 
 include $(INCLUDE_DIR)/package.mk
 
-GEOIP_VER:=202302090046
+GEOIP_VER:=202308310037
 GEOIP_FILE:=geoip.dat.$(GEOIP_VER)
 define Download/geoip
   URL:=https://github.com/v2fly/geoip/releases/download/$(GEOIP_VER)/
   URL_FILE:=geoip.dat
   FILE:=$(GEOIP_FILE)
-  HASH:=38e200a655c3e401dde6a438e79d493c3dbdd224e104a5158bef01f78ad4a151
+  HASH:=536d7aa9f54af747153d4f982adaa3181025dd72faaba8f532b3f514b467eff8
 endef
 
-GEOSITE_VER:=20230208103804
+GEOSITE_VER:=20230905081311
 GEOSITE_FILE:=dlc.dat.$(GEOSITE_VER)
 define Download/geosite
   URL:=https://github.com/v2fly/domain-list-community/releases/download/$(GEOSITE_VER)/
   URL_FILE:=dlc.dat
   FILE:=$(GEOSITE_FILE)
-  HASH:=479fe1557bf873a2951483315eb75d769e7e74e4523fd130c6762b30b7c49a2c
+  HASH:=d393deda756a446ec5247730ef09fed80ba9fb8d9204d1263c45a3604435fe57
 endef
 
 define Package/v2ray-geodata/template
@@ -41,6 +41,7 @@ endef
 define Package/v2ray-geoip
   $(call Package/v2ray-geodata/template)
   TITLE:=GeoIP List for V2Ray
+  PROVIDES:=v2ray-geodata xray-geodata xray-geoip
   VERSION:=$(GEOIP_VER)-$(PKG_RELEASE)
   LICENSE:=CC-BY-SA-4.0
 endef
@@ -48,6 +49,7 @@ endef
 define Package/v2ray-geosite
   $(call Package/v2ray-geodata/template)
   TITLE:=Geosite List for V2Ray
+  PROVIDES:=v2ray-geodata xray-geodata xray-geosite
   VERSION:=$(GEOSITE_VER)-$(PKG_RELEASE)
   LICENSE:=MIT
 endef
@@ -66,13 +68,15 @@ define Build/Compile
 endef
 
 define Package/v2ray-geoip/install
-	$(INSTALL_DIR) $(1)/usr/share/v2ray
+	$(INSTALL_DIR) $(1)/usr/share/v2ray $(1)/usr/share/xray
 	$(INSTALL_DATA) $(DL_DIR)/$(GEOIP_FILE) $(1)/usr/share/v2ray/geoip.dat
+	$(LN) ../v2ray/geoip.dat $(1)/usr/share/xray/geoip.dat
 endef
 
 define Package/v2ray-geosite/install
-	$(INSTALL_DIR) $(1)/usr/share/v2ray
+	$(INSTALL_DIR) $(1)/usr/share/v2ray $(1)/usr/share/xray
 	$(INSTALL_DATA) $(DL_DIR)/$(GEOSITE_FILE) $(1)/usr/share/v2ray/geosite.dat
+	$(LN) ../v2ray/geosite.dat $(1)/usr/share/xray/geosite.dat
 endef
 
 $(eval $(call BuildPackage,v2ray-geoip))
